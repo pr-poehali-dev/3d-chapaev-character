@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -14,146 +13,138 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+type Category = 'all' | 'museums' | 'parks' | 'monuments';
+
 interface Attraction {
   id: number;
   name: string;
+  category: Category;
   description: string;
-  fullDescription: string;
-  coordinates: [number, number];
-  category: string;
   image: string;
+  coordinates: [number, number];
 }
 
 const attractions: Attraction[] = [
   {
     id: 1,
-    name: 'Монумент Матери-Покровительницы',
-    description: 'Символ Чебоксар и всей Чувашии высотой 46 метров',
-    fullDescription: 'Монумент Матери-Покровительницы — величественная скульптура, возвышающаяся на 46 метров над Чебоксарским заливом. Открыт в 2003 году и стал символом материнской любви и защиты. С площадки у подножия монумента открывается потрясающий вид на залив и город. Это место особенно красиво на закате, когда золотые лучи освещают белоснежную статую.',
-    coordinates: [56.1319, 47.2486],
-    category: 'Памятники',
-    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/2fb459ef-bbb9-465a-84d9-89ad2a1131cb.jpg'
+    name: 'Монумент Матери-Покровительнице',
+    category: 'monuments',
+    description: 'Символ города Чебоксары высотой 46 метров. Монумент установлен на высоком берегу Волги и виден из многих точек города. Величественная скульптура олицетворяет образ матери, оберегающей своих детей.',
+    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/037d96b8-1aaa-43c6-a492-b5291885eb7f.jpg',
+    coordinates: [56.1264, 47.2500]
   },
   {
     id: 2,
-    name: 'Чебоксарский залив',
-    description: 'Живописная набережная в центре города',
-    fullDescription: 'Чебоксарский залив — сердце города и любимое место отдыха жителей и туристов. Протяженная набережная длиной более 5 км украшена цветниками, фонтанами и скульптурами. Здесь можно прогуляться вдоль воды, покататься на катамаранах, посетить многочисленные кафе и рестораны. Вечером набережная особенно красива благодаря художественной подсветке.',
-    coordinates: [56.1285, 47.2510],
-    category: 'Природа',
-    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/6c11b9b7-74c2-4174-b860-c062e1beb4bd.jpg'
+    name: 'Чувашский национальный музей',
+    category: 'museums',
+    description: 'Крупнейший музей Чувашии, основанный в 1921 году. В коллекции музея представлены уникальные экспонаты по истории, культуре и природе региона. Более 160 тысяч единиц хранения.',
+    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/68423f1f-141e-4e03-88d8-d55362d9fd75.jpg',
+    coordinates: [56.1305, 47.2449]
   },
   {
     id: 3,
-    name: 'Музей чувашской вышивки',
-    description: 'Уникальная коллекция традиционного чувашского искусства',
-    fullDescription: 'Музей чувашской вышивки представляет богатую коллекцию традиционных нарядов, узоров и техник вышивки чувашского народа. Здесь можно увидеть старинные костюмы, украшенные сложными орнаментами, узнать значение символов и цветов в чувашской культуре. Музей проводит мастер-классы, где посетители могут попробовать себя в искусстве вышивки.',
-    coordinates: [56.1350, 47.2450],
-    category: 'Музеи',
-    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/61d67579-e56c-4a26-a9b0-f74b46c82191.jpg'
+    name: 'Парк Победы',
+    category: 'parks',
+    description: 'Живописный парк в центре Чебоксар площадью 30 гектаров. Любимое место отдыха горожан с множеством аллей, смотровых площадок и памятников. Отсюда открывается красивый вид на Волгу и Чебоксарский залив.',
+    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/b3ddc196-ab85-489f-9f84-7eae2af4d8d9.jpg',
+    coordinates: [56.1327, 47.2416]
   },
   {
     id: 4,
     name: 'Введенский собор',
-    description: 'Древнейший храм города XVII века',
-    fullDescription: 'Введенский кафедральный собор — старейшее каменное здание Чебоксар, построенное в 1657 году. Собор является выдающимся памятником русского зодчества XVII века. Внутри храма сохранились фрески и иконостас XIX века. Рядом расположена колокольня высотой 52 метра, с которой открывается панорама исторического центра города.',
-    coordinates: [56.1410, 47.2520],
-    category: 'Храмы',
-    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/61d67579-e56c-4a26-a9b0-f74b46c82191.jpg'
+    category: 'monuments',
+    description: 'Старейшее сохранившееся здание Чебоксар, построенное в 1657 году. Памятник архитектуры федерального значения. Уникальный образец русского храмового зодчества XVII века.',
+    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/037d96b8-1aaa-43c6-a492-b5291885eb7f.jpg',
+    coordinates: [56.1285, 47.2528]
   },
   {
     id: 5,
-    name: 'Национальный музей Чувашии',
-    description: 'Крупнейший музей республики с богатой экспозицией',
-    fullDescription: 'Чувашский национальный музей — главный музей республики, основанный в 1921 году. Коллекция насчитывает более 200 тысяч экспонатов: археологические находки, предметы быта, произведения искусства, документы по истории края. Особый интерес представляют экспозиции, посвященные традиционной культуре чувашского народа, его обычаям и праздникам.',
-    coordinates: [56.1380, 47.2490],
-    category: 'Музеи',
-    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/61d67579-e56c-4a26-a9b0-f74b46c82191.jpg'
+    name: 'Музей истории трактора',
+    category: 'museums',
+    description: 'Единственный в России музей, посвященный истории тракторостроения. Представлена уникальная коллекция тракторов различных эпох и стран производства. Более 30 единиц техники.',
+    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/68423f1f-141e-4e03-88d8-d55362d9fd75.jpg',
+    coordinates: [56.1198, 47.2387]
+  },
+  {
+    id: 6,
+    name: 'Лакреевский лес',
+    category: 'parks',
+    description: 'Крупнейший лесной массив в черте города. Экологически чистая зона отдыха с лыжными трассами, велодорожками и пешеходными маршрутами. Площадь более 700 гектаров.',
+    image: 'https://cdn.poehali.dev/projects/7118d063-3b01-4fc1-8881-f4143808a0cb/files/b3ddc196-ab85-489f-9f84-7eae2af4d8d9.jpg',
+    coordinates: [56.1425, 47.2185]
   }
 ];
 
-const categories = ['Все', 'Памятники', 'Природа', 'Музеи', 'Храмы'];
+const categoryNames: Record<Category, string> = {
+  all: 'Все',
+  museums: 'Музеи',
+  parks: 'Парки',
+  monuments: 'Памятники'
+};
 
 const Index = () => {
+  const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
-  const [activeCategory, setActiveCategory] = useState('Все');
 
-  const filteredAttractions = activeCategory === 'Все' 
-    ? attractions 
-    : attractions.filter(a => a.category === activeCategory);
+  const filteredAttractions = selectedCategory === 'all'
+    ? attractions
+    : attractions.filter(a => a.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-blue-50 to-green-50">
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Icon name="MapPin" size={32} className="text-primary" />
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Интерактивная карта Чувашии</h1>
-                <p className="text-sm text-muted-foreground">Откройте красоту родного края</p>
-              </div>
-            </div>
-            <Button className="gap-2">
-              <Icon name="Heart" size={18} />
-              Избранное
-            </Button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-cyan-50">
+      <header className="bg-white shadow-sm border-b-4 border-primary">
+        <div className="container mx-auto px-4 py-6">
+          <h1 className="text-4xl font-bold text-primary flex items-center gap-3">
+            <Icon name="MapPin" size={36} className="text-primary" />
+            Интерактивная карта Чувашии
+          </h1>
+          <p className="text-muted-foreground mt-2 text-lg">Откройте для себя красоту и историю Чувашской Республики</p>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="map" className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-            <TabsTrigger value="map" className="gap-2">
-              <Icon name="Map" size={18} />
-              Карта
-            </TabsTrigger>
-            <TabsTrigger value="list" className="gap-2">
-              <Icon name="List" size={18} />
-              Достопримечательности
-            </TabsTrigger>
-          </TabsList>
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+            <Icon name="Filter" size={24} className="text-accent" />
+            Категории
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {(Object.keys(categoryNames) as Category[]).map(category => (
+              <Button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                className="text-base"
+              >
+                {categoryNames[category]}
+              </Button>
+            ))}
+          </div>
+        </div>
 
-          <TabsContent value="map" className="space-y-6">
-            <div className="flex gap-2 flex-wrap justify-center">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={activeCategory === category ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setActiveCategory(category)}
-                  className="gap-2"
-                >
-                  <Icon 
-                    name={
-                      category === 'Все' ? 'MapPin' :
-                      category === 'Памятники' ? 'Landmark' :
-                      category === 'Природа' ? 'Trees' :
-                      category === 'Музеи' ? 'Building2' :
-                      'Church'
-                    } 
-                    size={16} 
-                  />
-                  {category}
-                </Button>
-              ))}
-            </div>
-
-            <div className="grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 rounded-xl overflow-hidden shadow-xl h-[600px] border-4 border-white">
-                <MapContainer 
-                  center={[56.1319, 47.2486]} 
-                  zoom={13} 
+        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+          <Card className="shadow-lg border-2 border-primary/20">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Map" size={24} className="text-primary" />
+                Карта достопримечательностей
+              </CardTitle>
+              <CardDescription>Нажмите на маркер для подробной информации</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="h-[500px] w-full rounded-b-lg overflow-hidden">
+                <MapContainer
+                  center={[56.1264, 47.2500]}
+                  zoom={13}
                   style={{ height: '100%', width: '100%' }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
-                  {filteredAttractions.map((attraction) => (
-                    <Marker 
-                      key={attraction.id} 
+                  {filteredAttractions.map(attraction => (
+                    <Marker
+                      key={attraction.id}
                       position={attraction.coordinates}
                       eventHandlers={{
                         click: () => setSelectedAttraction(attraction)
@@ -161,113 +152,122 @@ const Index = () => {
                     >
                       <Popup>
                         <div className="text-center">
-                          <h3 className="font-bold">{attraction.name}</h3>
-                          <p className="text-sm">{attraction.description}</p>
+                          <h3 className="font-semibold text-base">{attraction.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{categoryNames[attraction.category]}</p>
                         </div>
                       </Popup>
                     </Marker>
                   ))}
                 </MapContainer>
               </div>
+            </CardContent>
+          </Card>
 
-              <div>
-                {selectedAttraction ? (
-                  <Card className="shadow-xl border-2">
-                    <CardHeader className="p-0">
-                      <img 
-                        src={selectedAttraction.image} 
-                        alt={selectedAttraction.name}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                      />
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Icon name="MapPin" size={20} className="text-primary" />
-                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-                            {selectedAttraction.category}
-                          </span>
-                        </div>
-                        <CardTitle className="text-xl mb-2">{selectedAttraction.name}</CardTitle>
-                        <CardDescription className="text-base leading-relaxed">
-                          {selectedAttraction.fullDescription}
-                        </CardDescription>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button className="flex-1 gap-2">
-                          <Icon name="Navigation" size={16} />
-                          Маршрут
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <Icon name="Heart" size={16} />
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <Icon name="Share2" size={16} />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card className="shadow-xl border-2">
-                    <CardContent className="p-8 text-center space-y-4">
-                      <Icon name="MousePointerClick" size={48} className="mx-auto text-muted-foreground" />
-                      <div>
-                        <CardTitle className="mb-2">Выберите достопримечательность</CardTitle>
-                        <CardDescription>
-                          Кликните на любой маркер на карте, чтобы увидеть подробную информацию
-                        </CardDescription>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </TabsContent>
+          {selectedAttraction && (
+            <Card className="shadow-lg border-2 border-secondary/20 animate-in fade-in slide-in-from-right-5 duration-500">
+              <CardHeader className="bg-gradient-to-r from-secondary/10 to-accent/10">
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Info" size={24} className="text-secondary" />
+                  {selectedAttraction.name}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-2">
+                  <Icon name="Tag" size={16} className="text-accent" />
+                  {categoryNames[selectedAttraction.category]}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-6">
+                <img
+                  src={selectedAttraction.image}
+                  alt={selectedAttraction.name}
+                  className="w-full h-64 object-cover rounded-lg shadow-md"
+                />
+                <p className="text-base leading-relaxed">{selectedAttraction.description}</p>
+                <Button className="w-full" size="lg">
+                  <Icon name="Navigation" size={20} className="mr-2" />
+                  Построить маршрут
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-          <TabsContent value="list">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredAttractions.map((attraction) => (
-                <Card 
-                  key={attraction.id} 
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-primary"
-                  onClick={() => setSelectedAttraction(attraction)}
-                >
-                  <CardHeader className="p-0">
-                    <img 
-                      src={attraction.image} 
-                      alt={attraction.name}
-                      className="w-full h-48 object-cover"
-                    />
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Icon name="MapPin" size={16} className="text-primary" />
-                      <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-                        {attraction.category}
-                      </span>
+          {!selectedAttraction && (
+            <Card className="shadow-lg border-2 border-accent/20 bg-gradient-to-br from-accent/5 to-primary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Sparkles" size={24} className="text-accent" />
+                  Добро пожаловать!
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-lg">Выберите маркер на карте, чтобы узнать подробную информацию о достопримечательности.</p>
+                <div className="space-y-3 mt-6">
+                  <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                    <Icon name="Museum" size={24} className="text-primary mt-1" />
+                    <div>
+                      <h4 className="font-semibold">Музеи</h4>
+                      <p className="text-sm text-muted-foreground">Познакомьтесь с историей и культурой региона</p>
                     </div>
-                    <CardTitle className="text-lg">{attraction.name}</CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {attraction.description}
-                    </CardDescription>
-                    <Button className="w-full gap-2 mt-4">
-                      <Icon name="Info" size={16} />
-                      Подробнее
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                    <Icon name="Trees" size={24} className="text-accent mt-1" />
+                    <div>
+                      <h4 className="font-semibold">Парки</h4>
+                      <p className="text-sm text-muted-foreground">Насладитесь природой и свежим воздухом</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 bg-white rounded-lg">
+                    <Icon name="Landmark" size={24} className="text-secondary mt-1" />
+                    <div>
+                      <h4 className="font-semibold">Памятники</h4>
+                      <p className="text-sm text-muted-foreground">Откройте архитектурное наследие Чувашии</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <section>
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <Icon name="Heart" size={28} className="text-primary" />
+            Все достопримечательности
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAttractions.map(attraction => (
+              <Card
+                key={attraction.id}
+                className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 hover:border-primary/30"
+                onClick={() => setSelectedAttraction(attraction)}
+              >
+                <CardHeader className="p-0">
+                  <img
+                    src={attraction.image}
+                    alt={attraction.name}
+                    className="w-full h-48 object-cover rounded-t-lg"
+                  />
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <CardTitle className="mb-2 flex items-center gap-2">
+                    <Icon name="MapPin" size={18} className="text-primary" />
+                    {attraction.name}
+                  </CardTitle>
+                  <CardDescription className="flex items-center gap-2 mb-3">
+                    <Icon name="Tag" size={14} className="text-accent" />
+                    {categoryNames[attraction.category]}
+                  </CardDescription>
+                  <p className="text-sm line-clamp-3">{attraction.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
       </main>
 
-      <footer className="bg-white/80 backdrop-blur-sm mt-16 py-8 border-t">
+      <footer className="bg-primary text-primary-foreground mt-16 py-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground flex items-center justify-center gap-2">
-            <Icon name="Heart" size={16} className="text-red-500" />
-            Создано с любовью к Чувашии
-          </p>
+          <p className="text-lg">Откройте для себя Чувашию 🌟</p>
+          <p className="text-sm opacity-90 mt-2">Интерактивный туристический портал</p>
         </div>
       </footer>
     </div>
